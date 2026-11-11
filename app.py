@@ -12,6 +12,14 @@ load_dotenv()
 
 api_key = os.getenv("GEMINI_API_KEY")
 
+# Streamlit Cloud Secrets Support
+if not api_key:
+    try:
+        api_key = st.secrets["GEMINI_API_KEY"]
+    except (KeyError, FileNotFoundError):
+        api_key = None
+
+
 # =====================================
 # 2. Page Configuration
 # =====================================
@@ -22,24 +30,187 @@ st.set_page_config(
     layout="wide"
 )
 
+
 # =====================================
-# 3. Check API Key
+# 3. Professional UI Styling
+# =====================================
+
+st.markdown("""
+<style>
+
+.stApp {
+    background-color: #f5f6fc;
+}
+
+/* Main Content */
+
+.block-container {
+    max-width: 1200px;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+}
+
+/* Sidebar */
+
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #191c3b, #30265c);
+}
+
+[data-testid="stSidebar"] * {
+    color: white;
+}
+
+[data-testid="stSidebar"] h1 {
+    color: white;
+    font-size: 27px;
+}
+
+[data-testid="stSidebar"] [data-testid="stRadio"] label {
+    font-size: 15px;
+}
+
+/* Headings */
+
+h1 {
+    color: #25264b;
+    font-weight: 750;
+}
+
+h2, h3 {
+    color: #34345e;
+    font-weight: 650;
+}
+
+/* Input Fields */
+
+.stTextInput input,
+.stTextArea textarea {
+    border-radius: 10px;
+    border: 1px solid #dfe1ee;
+    background-color: white;
+}
+
+.stTextInput input:focus,
+.stTextArea textarea:focus {
+    border-color: #7564e8;
+}
+
+/* Select Box */
+
+.stSelectbox div[data-baseweb="select"] {
+    border-radius: 10px;
+}
+
+/* Buttons */
+
+.stButton button,
+.stFormSubmitButton button {
+    background: linear-gradient(90deg, #6558e8, #8b5cf6);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    padding: 0.65rem 1rem;
+    transition: 0.3s;
+}
+
+.stButton button:hover,
+.stFormSubmitButton button:hover {
+    background: linear-gradient(90deg, #5145cd, #7044d8);
+    color: white;
+    border: none;
+}
+
+/* Forms */
+
+div[data-testid="stForm"] {
+    background-color: white;
+    padding: 25px;
+    border-radius: 16px;
+    border: 1px solid #e8e8f2;
+    box-shadow: 0 4px 15px rgba(35, 35, 80, 0.04);
+}
+
+/* Dashboard Hero */
+
+.hero-card {
+    background: linear-gradient(120deg, #252b59, #6558e8);
+    padding: 35px;
+    border-radius: 18px;
+    color: white;
+    margin-bottom: 25px;
+}
+
+.hero-card h2 {
+    color: white;
+    font-size: 30px;
+}
+
+.hero-card p {
+    color: #eeeeff;
+    font-size: 16px;
+}
+
+/* Feature Cards */
+
+.feature-card {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    border: 1px solid #e7e8f1;
+    min-height: 180px;
+    box-shadow: 0 4px 15px rgba(35, 35, 80, 0.04);
+}
+
+.feature-card h3 {
+    color: #5145cd;
+}
+
+.feature-card p {
+    color: #66677a;
+    line-height: 1.7;
+}
+
+/* Alerts */
+
+div[data-testid="stAlert"] {
+    border-radius: 10px;
+}
+
+/* Footer */
+
+.footer {
+    text-align: center;
+    color: #888;
+    font-size: 13px;
+    padding-top: 35px;
+    padding-bottom: 10px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+# =====================================
+# 4. Check API Key
 # =====================================
 
 if not api_key:
-    st.error("API key not found. Please check your .env file.")
+    st.error("API key not found. Please configure GEMINI_API_KEY.")
     st.stop()
 
+
 # =====================================
-# 4. Initialize Gemini Client
+# 5. Initialize Gemini Client
 # =====================================
 
 client = genai.Client(api_key=api_key)
 
 MODEL_NAME = "gemini-3.8-flash"
 
+
 # =====================================
-# 5. Sidebar Navigation
+# 6. Sidebar Navigation
 # =====================================
 
 with st.sidebar:
@@ -66,39 +237,72 @@ with st.sidebar:
 
 
 # =====================================
-# 6. Dashboard
+# 7. Dashboard
 # =====================================
 
 if menu == "Dashboard":
 
-    st.title("Welcome to MailGen AI")
+    st.markdown("""
+    <div class="hero-card">
+        <h2>Welcome to MailGen AI 👋</h2>
+        <p>
+            Write smarter emails and generate intelligent replies
+            in seconds using Artificial Intelligence.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.write(
-        "Generate professional emails and replies "
-        "using Artificial Intelligence."
-    )
+    st.subheader("Explore Your AI Assistant")
 
-    st.divider()
-
-    st.subheader("What can you do?")
+    st.write("Choose a feature to get started.")
 
     col1, col2 = st.columns(2)
 
     with col1:
-        st.info(
-            "✉️ Generate professional emails "
-            "based on your requirements."
-        )
+
+        st.markdown("""
+        <div class="feature-card">
+            <h3>✉️ Generate Professional Emails</h3>
+            <p>
+                Create clear and professional emails based on
+                your recipient, subject, purpose and preferred tone.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.write("")
+
+        if st.button("Generate Email →", use_container_width=True):
+            st.session_state["navigation_page"] = "Generate Email"
+            st.rerun()
 
     with col2:
-        st.info(
-            "↩️ Generate suitable replies "
-            "to emails you receive."
-        )
+
+        st.markdown("""
+        <div class="feature-card">
+            <h3>↩️ Generate Smart Replies</h3>
+            <p>
+                Paste an email you received and generate a suitable
+                reply according to your communication needs.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.write("")
+
+        if st.button("Generate Reply →", use_container_width=True):
+            st.session_state["navigation_page"] = "Generate Reply"
+            st.rerun()
+
+    st.markdown("""
+    <div class="footer">
+        MailGen AI | Built with Python, Streamlit and Google Gemini
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # =====================================
-# 7. Generate Email
+# 8. Generate Email
 # =====================================
 
 elif menu == "Generate Email":
@@ -146,7 +350,7 @@ elif menu == "Generate Email":
         )
 
         generate_button = st.form_submit_button(
-            "Generate Email",
+            "✨ Generate Email",
             use_container_width=True
         )
 
@@ -218,7 +422,7 @@ elif menu == "Generate Email":
 
 
 # =====================================
-# 8. Generate Reply
+# 9. Generate Reply
 # =====================================
 
 elif menu == "Generate Reply":
@@ -255,7 +459,7 @@ elif menu == "Generate Reply":
         )
 
         reply_button = st.form_submit_button(
-            "Generate Reply",
+            "✨ Generate Reply",
             use_container_width=True
         )
 
@@ -324,7 +528,7 @@ elif menu == "Generate Reply":
 
 
 # =====================================
-# 9. About
+# 10. About
 # =====================================
 
 elif menu == "About":
@@ -349,3 +553,11 @@ elif menu == "About":
         - python-dotenv
         """
     )
+
+    st.divider()
+
+    st.markdown("""
+    <div class="footer">
+        MailGen AI | AI-Powered Email Assistant
+    </div>
+    """, unsafe_allow_html=True)
